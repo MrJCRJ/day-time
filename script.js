@@ -1,3 +1,10 @@
+import { database } from "./firebase.js";
+import {
+  ref,
+  push,
+  onValue,
+} from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
 // Variáveis para armazenar as cores das atividades
 const activityColors = {
   work: "#ff6347", // Vermelho
@@ -12,6 +19,50 @@ const activityColors = {
 };
 
 let activitiesLog = []; // Registro das atividades
+
+// Função para salvar atividade no Firebase
+function saveActivityToFirebase(activity, start, end) {
+  const activityRef = ref(database, "activities");
+
+  const newActivity = {
+    activity: activity,
+    start: start,
+    end: end,
+    timestamp: new Date().toISOString(),
+  };
+
+  push(activityRef, newActivity)
+    .then(() => {
+      console.log("Atividade salva com sucesso!");
+    })
+    .catch((error) => {
+      console.error("Erro ao salvar a atividade:", error);
+    });
+}
+
+// Função para carregar atividades do Firebase
+function loadActivitiesFromFirebase() {
+  const activityRef = ref(database, "activities");
+
+  onValue(activityRef, (snapshot) => {
+    const data = snapshot.val();
+
+    // Converte os dados para o formato de atividades
+    activitiesLog = [];
+    for (const id in data) {
+      activitiesLog.push({
+        activity: data[id].activity,
+        start: data[id].start,
+        end: data[id].end,
+      });
+    }
+
+    renderTimeline(); // Atualiza a linha do tempo com os dados recuperados
+  });
+}
+
+// Carrega atividades ao iniciar
+loadActivitiesFromFirebase();
 
 // Atualiza o traço vermelho em tempo real
 function updateCurrentTimeIndicator() {
@@ -55,6 +106,8 @@ function setActivity(activity) {
 
       renderTimeline(); // Atualiza a linha do tempo
       updateActivityLog(); // Atualiza o log de atividades
+
+      saveActivityToFirebase(activity, startTime, endTime); // Salva no Firebase
     } else {
       alert(
         "Horários inválidos. Certifique-se de que estão no formato HH:mm e que o horário de início é antes do término."
@@ -208,6 +261,7 @@ function showTimeForm(activity) {
 
         // Oculta o formulário
         formContainer.style.display = "none";
+        saveActivityToFirebase(activity, startDecimal, endDecimal); // Salva no Firebase
       } else {
         alert(
           "Horário inválido. O horário de início deve ser antes do horário de término."
@@ -215,42 +269,12 @@ function showTimeForm(activity) {
       }
     }
   };
-
-  // Cancela e fecha o formulário
-  document.getElementById("cancel-time").onclick = function () {
-    formContainer.style.display = "none";
-  };
 }
 
-// Função para registrar atividade ao clicar no botão
-function setActivity(activity) {
-  showTimeForm(activity); // Exibe o formulário para inserir horário
-}
-
-// Função para atualizar a hora no centro da linha e o traço vermelho
-function updateTime() {
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const totalMinutes = hours * 60 + minutes; // Total de minutos desde 00:00
-  const percentOfDay = (totalMinutes / 1440) * 100; // Percentual do dia
-
-  // Atualiza a hora visível no centro
-  document.getElementById("current-time-indicator").textContent = `${hours
-    .toString()
-    .padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-
-  // Move o traço vermelho para a posição correta
-  const timeIndicator = document.getElementById("time-indicator");
-  if (timeIndicator) {
-    timeIndicator.style.left = `${percentOfDay}%`;
-  }
-}
-
-// Atualiza a linha do tempo ao salvar atividades
+// Função para atualizar e renderizar a linha do tempo
 function updateAndRenderTimeline() {
-  updateTime(); // Atualiza o traço vermelho
-  renderTimeline(); // Renderiza as atividades
+  renderTimeline();
+  markProcrastination(); // Marca os períodos não registrados como procrastinação
 }
 
 // Adiciona os eventos aos botões
