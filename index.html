@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day Time</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Linha do tempo -->
+    <div id="timeline-container">
+      <div
+        id="timeline"
+        style="
+          position: relative;
+          width: 100%;
+          height: 50px;
+          background-color: #f0f0f0;
+        "
+      >
+        <!-- Segmentos das atividades serão adicionados dinamicamente -->
+        <div
+          id="current-time-indicator"
+          style="
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: red;
+          "
+        ></div>
+      </div>
+      <div id="hours">
+        <!-- Marcação das horas -->
+        <span>00</span>
+        <span>06</span>
+        <span>12</span>
+        <span>18</span>
+        <span>24</span>
+      </div>
+    </div>
+
+    <div id="time-form-container" style="display: none">
+      <form id="time-form">
+        <label for="start-time">Hora de Início:</label>
+        <input type="time" id="start-time" required />
+
+        <label for="end-time">Hora de Término:</label>
+        <input type="time" id="end-time" required />
+
+        <button type="submit">Salvar</button>
+        <button type="button" id="cancel-time">Cancelar</button>
+      </form>
+    </div>
+
+    <!-- Botões de atividade -->
+    <div class="buttons">
+      <button class="activity-btn" id="work">Trabalho</button>
+      <button class="activity-btn" id="sleep">Dormir</button>
+      <button class="activity-btn" id="leisure">Lazer</button>
+      <button class="activity-btn" id="tasks">Tarefas</button>
+      <button class="activity-btn" id="training">Treino</button>
+      <button class="activity-btn" id="study">Estudo</button>
+      <button class="activity-btn" id="hobby">Hobbi</button>
+      <button class="activity-btn" id="projects">Projetos</button>
+    </div>
+
+    <!-- Seletor de data -->
+    <input type="date" id="date-picker" />
+
+    <!-- Registro de atividades -->
+    <div id="activity-log" style="margin-top: 20px">
+      <h3>Atividades Registradas:</h3>
+      <ul id="log-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
